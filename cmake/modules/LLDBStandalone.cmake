@@ -115,7 +115,6 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   include(HandleLLVMOptions)
   include(CheckAtomic)
 
-
   if (PYTHON_EXECUTABLE STREQUAL "")
     set(Python_ADDITIONAL_VERSIONS 3.5 3.4 3.3 3.2 3.1 3.0 2.7 2.6 2.5)
     include(FindPythonInterp)
@@ -129,8 +128,10 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   endif()
 
   # Import CMake library targets from LLVM and Clang.
-  if (EXISTS "${LLDB_PATH_TO_CLANG_BUILD}/lib/cmake/clang/ClangConfig.cmake")
-      include("${LLDB_PATH_TO_CLANG_BUILD}/lib/cmake/clang/ClangConfig.cmake")
+  include("${LLVM_OBJ_ROOT}/lib${LLVM_LIBDIR_SUFFIX}/cmake/llvm/LLVMConfig.cmake")
+  # cmake/clang/ClangConfig.cmake is not created when LLVM and Cland are built together.
+  if (EXISTS "${LLVM_OBJ_ROOT}/lib${LLVM_LIBDIR_SUFFIX}/cmake/clang/ClangConfig.cmake")
+    include("${LLVM_OBJ_ROOT}/lib${LLVM_LIBDIR_SUFFIX}/cmake/clang/ClangConfig.cmake")
   endif()
 
   set(PACKAGE_VERSION "${LLVM_PACKAGE_VERSION}")
@@ -143,14 +144,21 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   set(SWIFT_MAIN_INCLUDE_DIR "${SWIFT_MAIN_SRC_DIR}/include")
 
   set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  include_directories("${LLVM_BINARY_DIR}/include"
-                      "${LLVM_BINARY_DIR}/tools/clang/include"
-                      "${LLVM_MAIN_INCLUDE_DIR}"
-                      "${PATH_TO_CLANG_BUILD}/include"
-                      "${CLANG_MAIN_INCLUDE_DIR}"
-                      "${PATH_TO_SWIFT_BUILD}/include"
-                      "${SWIFT_MAIN_INCLUDE_DIR}"
-                      "${CMAKE_CURRENT_SOURCE_DIR}/source")
+  include_directories("${LLVM_BINARY_DIR}/include" "${LLVM_MAIN_INCLUDE_DIR}")
+  # Next three include directories are needed when llvm-config is located in build directory.
+  # LLVM and Cland are assumed to be built together
+  if (EXISTS "${LLVM_OBJ_ROOT}/include")
+    include_directories("${LLVM_OBJ_ROOT}/include")
+  endif()
+  if (EXISTS "${LLVM_MAIN_SRC_DIR}/tools/clang/include")
+    include_directories("${LLVM_MAIN_SRC_DIR}/tools/clang/include")
+  endif()
+  if (EXISTS "${LLVM_OBJ_ROOT}/tools/clang/include")
+    include_directories("${LLVM_OBJ_ROOT}/tools/clang/include")
+  endif()
+  if (EXISTS "${PATH_TO_SWIFT_BUILD}/include")
+    include_directories("${PATH_TO_SWIFT_BUILD}/include" "${SWIFT_MAIN_INCLUDE_DIR}")
+  endif()
   link_directories("${LLVM_LIBRARY_DIR}"
                    "${PATH_TO_CLANG_BUILD}/lib${LLVM_LIBDIR_SUFFIX}"
                    "${PATH_TO_SWIFT_BUILD}/lib${LLVM_LIBDIR_SUFFIX}"

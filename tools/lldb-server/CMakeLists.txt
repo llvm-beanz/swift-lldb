@@ -91,7 +91,7 @@ if ( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
     )
 endif()
 
-set(CLANG_ALL_LIBS
+set(CLANG_USED_LIBS
     clangAnalysis
     clangAST
     clangBasic
@@ -105,7 +105,7 @@ set(CLANG_ALL_LIBS
     clangRewriteFrontend
     clangSema
     clangSerialization)
-set(SWIFT_ALL_LIBS
+set(SWIFT_USED_LIBS
     swiftBasic
     swiftAST
     swiftIDE
@@ -185,32 +185,16 @@ add_lldb_tool(lldb-server INCLUDE_IN_FRAMEWORK
     lldb-platform.cpp
     lldb-server.cpp
     LLDBServerUtilities.cpp
+
+    LINK_LIBS
+    ${CLANG_USED_LIBS}
+    ${SWIFT_USED_LIBS}
+    liblldb
+    ${LLDB_SYSTEM_LIBS}
 )
 
-if (BUILD_SHARED_LIBS )
-  target_link_libraries(lldb-server liblldb)
-  target_link_libraries(lldb-server ${LLDB_SYSTEM_LIBS})
-else()
-  # The Darwin linker doesn't understand --start-group/--end-group.
-  if (LLDB_LINKER_SUPPORTS_GROUPS)
-    target_link_libraries(lldb-server
-                          -Wl,--start-group ${LLDB_USED_LIBS} -Wl,--end-group)
-    target_link_libraries(lldb-server
-                          -Wl,--start-group ${SWIFT_ALL_LIBS} -Wl,--end-group)
-    target_link_libraries(lldb-server
-                          -Wl,--start-group ${CLANG_ALL_LIBS} -Wl,--end-group)
-    target_link_libraries(lldb-server
-                          -Wl,--start-group ${LLVM_ALL_LIBS} -Wl,--end-group)
-  else()
-    target_link_libraries(lldb-server ${LLDB_USED_LIBS})
-    target_link_libraries(lldb-server ${SWIFT_ALL_LIBS})
-    target_link_libraries(lldb-server ${CLANG_ALL_LIBS})
-    target_link_libraries(lldb-server ${LLVM_ALL_LIBS})
-  endif()
-  llvm_config(lldb-server ${LLVM_LINK_COMPONENTS})
+lldb_link_common_libs(lldb-server EXE)
 
-  target_link_libraries(lldb-server ${LLDB_SYSTEM_LIBS})
-endif()
 if(NOT LLVM_LINK_LLVM_DYLIB)
   # This is necessary in !LLVM_LINK_LLVM_DYLIB as LLDB's libs do not track their
   # dependencies properly. It is conditional because in a LLVM_LINK_LLVM_DYLIB
