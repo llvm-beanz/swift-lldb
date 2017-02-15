@@ -42,18 +42,8 @@ function(add_lldb_library name)
   if (PARAM_OBJECT)
     add_library(${name} ${libkind} ${srcs})
   else()
-    # start swift mod
-    if (PARAM_SHARED AND LLDB_LINKER_SUPPORTS_GROUPS)
-      set(start_group -Wl,--start-group)
-      set(end_group -Wl,--end-group)
-    endif()
-    # end swift mod
     llvm_add_library(${name} ${libkind} ${srcs} LINK_LIBS
-    # start swift mod
-                                ${start_group}
                                 ${PARAM_LINK_LIBS}
-                                ${end_group}
-    # end swift mod
                                 DEPENDS ${PARAM_DEPENDS})
 
     if (NOT LLVM_INSTALL_TOOLCHAIN_ONLY OR ${name} STREQUAL "liblldb")
