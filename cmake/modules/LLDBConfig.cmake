@@ -441,6 +441,7 @@ if(LLDB_USE_BUILTIN_DEMANGLER)
 endif()
 
 find_package(Backtrace)
+check_symbol_exists(ppoll poll.h HAVE_PPOLL)
 
 check_include_file(termios.h HAVE_TERMIOS_H)
 
