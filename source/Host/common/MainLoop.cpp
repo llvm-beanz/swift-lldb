@@ -17,7 +17,6 @@
 #include <cerrno>
 #include <csignal>
 #include <vector>
-#include <sys/select.h>
 
 #if HAVE_SYS_EVENT_H
 #include <sys/event.h>
