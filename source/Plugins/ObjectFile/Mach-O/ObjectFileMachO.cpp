@@ -3874,10 +3874,14 @@ size_t ObjectFileMachO::ParseSymtab() {
                                   sym[sym_idx].Clear();
                                   continue;
                                 } else {
-                                  if (SwiftLanguageRuntime::IsSwiftSymbol(symbol_name) {
-                                    if (SwiftLanguageRuntime::IsIvarOffset(symbol_name) {
+                                  if (SwiftLanguageRuntime::IsSwiftMangledName(
+                                          symbol_name)) {
+                                    if (SwiftLanguageRuntime::
+                                            IsIvarOffsetSymbol(symbol_name)) {
                                       type = eSymbolTypeIVarOffset;
-                                    } else if (SwiftLanguageRuntime::IsMetadataSymbol(symbol_name) {
+                                    } else if (SwiftLanguageRuntime::
+                                                   IsMetadataSymbol(
+                                                       symbol_name)) {
                                       type = eSymbolTypeMetadata;
                                     }
                                   }
